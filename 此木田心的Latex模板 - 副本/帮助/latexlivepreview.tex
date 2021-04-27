@@ -1,0 +1,68 @@
+\documentclass[UTF-8]{ctexart}
+\usepackage[colorlinks,linkcolor=blue]{hyperref}
+\usepackage[left=1.25in,right=1.25in,top=1in,bottom=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{listings}
+\lstset{
+columns=fullflexiblem,
+breaklines=true,
+frame=none,
+backgroundcolor=\color[RGB]{245,245,244},
+basicstyle=\tt,
+extendedchars=false 
+}
+\begin{document}
+\author{Singtren}
+\title{LaTeX即时预览on Windows}
+\maketitle
+LaTeX对于学数学或物理的同学应该是必会的技能了。写论文，做笔记，交作业，都可以用LaTeX完成。但它并不是界面友好的系统，入门曲线出了名的陡峭。最大的问题就是它不是所见即所得的。
+
+很多人，特别是精通LaTeX的人，都说非所见即所得反而能提高编辑的效率。这一点我到现在还没能理解，或许是我的LaTeX还处于入门水平的原因吧。所以，对我来说，要是我能在写LaTeX代码的时候能即时看到编译后的文档，就能极大地提高编辑效率。当然，这是指文档有很多数学公式的情况下。对于没公式的文档，我并不需要及时预览，或者干脆不用LaTeX.我想，对于大多数LaTeX用户来说会和我有同样的想法。
+对于会Linux的同学，写个LaTeX及时预览脚本应该不是问题。
+
+大多数同学应该是Windows用户，而在Windows上没有支持即时预览的LaTeX集成环境。
+解决方案有两个。
+
+\begin{itemize}
+\item 浏览器做编辑器，MathJax及时渲染
+\item SumatraPdf+vim+即时预览插件
+\end{itemize}
+对于第一种方法，推荐\href{https://zohooo.github.io/jaxedit/}{JaxEditor},可以在线使用，也可以用离线版。
+\begin{figure}[]
+	\centering
+	\includegraphics[width=17cm]{jax.jpg}
+	\caption{JaxEditor}
+\end{figure}
+在没有使用第二种方法之前,JaxEditor我用了很久，公式特别多的文档一般都在JaxEditor上一段一段地编写，然后一段一段复制到WinEdt 编译。这样避免了很多公式语法错误。不然，如果不能预览公式，写了一大段代码，编译报错，那要花很久才能找到错误。
+
+JaxEditor是我非常喜欢的编辑器，因为在浏览器上写公式非常方便，离线版打开直接写，立即能预览，也不用新建文件。并且MathJax 渲染的公式很漂亮。做笔记需要写公式的时候，在JaxEditor写完，然后直接截图粘贴就行。
+
+不过MathJax也有局限性，毕竟使用的是浏览器，只能支持部分LaTeX命令，当然对于只写数学公式的话已经完全够了.还有一个问题是，段落写得有点长时输入会有明显的延迟现象，公式渲染也会延迟。而书写不流畅是我最不能忍受的。没法忍受用一支墨水断断续续的笔书写数学式子。对于输入有能感受到的延迟的文本编辑器我是绝对不会用的。所以JaxEdit我一般是写一段，清一段。
+
+当遇到写较长论文的情况时，每一段在JaxEdit上写完再复制效率将是非常低的。这时需要的是能即时编译的系统。找了很久，终于还是被我找到了可行的方案。那就是\href{https://github.com/xuhdev/vim-latex-live-preview}{vim-latex-live-preview}
+
+其实在一年前我就发现了这个vim插件，但我看到作者说这个插件只支持Linux系统。所以当时我就没去试(当时差点就冲动地去换Linux 系统)。一年后再次看到这个插件，这是已经会用GitHub了。就把这个repository clone下来。看了一下代码，也就不到200行，代码兼容性也很好，Windows 上应该也能跑起来的。看了一下项目的issue,原来作者说不支持Windows的原因是作者以为Windows上没有及时预览的pdf 阅读器。因为像Adobe Reader 的阅读器打开文件时是不允许其他软件改写这个文件的。但是Windows上有SumatraPdf,能有支持及时预览。那么这个问题就解决了。
+做法是将\verb!vim-latex-live-preview/plugin/latexlivepreview.vim!复制到\verb!Vim/vimfiles/plugin!.
+在\verb!Vim/vimrc!中添加
+\begin{lstlisting}
+autocmd Filetype tex setl updatetime=1000
+let g:Tex_MultipleCompileFormats='pdf'
+let g:livepreview_previewer = 'SumatraPDF -reuse-instance -inverse-search "gvim -c \":RemoteOpen +\%l \%f\""'
+\end{lstlisting}
+当然，前提是安装了Tex-Suit和Python.因为vim-latex-preview是用Python写的.至于Tex-Suit的配置,这里就不讲了。
+
+做完后，用vim打开一个TeX文档,输入\verb!:LLPStartPreview!就能用SumatraPDF进行及时预览。经测试，在写文档的时候实时编译并不影响输入响应时间.打字依旧那么流畅。不过要是按住hjkl让光标持续快速移动时，还是会出现卡顿现象。并且CPU和磁盘使用率会很高.
+
+
+其实，有了支持及时更新的阅读器SumatraPDF配合vim，也不怎么需要及时编译及时预览了。只要把SumatraPDF放一边。写玩一段按\verb!\ll! 编译一下，SumatraPDF自动会刷新文档。
+
+总之在Windows上写LaTeX最好的搭配是vim+TeX-Suit+SumatraPDF
+
+及时预览效果见图
+\begin{figure}[]
+	\centering
+	\includegraphics[width=17cm]{livepreview.jpg}
+	\caption{使用插件及时预览}
+\end{figure}
+
+\end{document}
